@@ -20,27 +20,18 @@ app.get("/api-list", async function (req, res) {
 // Updated endpoint to serve statistics
 app.get("/api-stats", async function (req, res) {
   const totalApis = global.api.size;
-  const categories = new Set(Array.from(global.api.values()).map(api => api.config.category));
-  const totalCategories = categories.size;
-
-  // These values should be replaced with actual data in a production environment
-  const dailyRequests = 1000000;
-  const uptime = 99.99;
 
   const stats = {
     browserCodeName: "Mozilla",
     browserName: "Netscape",
-    cookiesEnabled: true,
-    browserLanguage: "en-US",
+    browserLanguage: req.headers["accept-language"] || "en-US",
     browserOnline: true,
     platform: `${os.type()} ${os.arch()}`,
-    userAgent: req.get('User-Agent'),
     ipAddress: req.ip,
-    date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
-    time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+    date: new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }),
+    time: new Date().toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
     totalApis,
-    totalCategories,
-    uptime
+    
   };
 
   res.json(stats);
