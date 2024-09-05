@@ -1,6 +1,7 @@
 const express = require("express");
 const path = require("path");
 const config = require("./config.json");
+const os = require('os')
 
 global.config = config;
 global.api = new Map();  // Ensure global.api is initialized here
