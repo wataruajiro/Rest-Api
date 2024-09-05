@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ajiro API - Lance Ajiro</title>
+    <meta name="description" content="Discover Ajiro API's powerful and flexible solutions to enhance your applications.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #121212;
+            --text-color: #e0e0e0;
+            --accent-color: #3498db;
+            --border-color: #2c2c2c;
+            --hover-color: #1e1e1e;
+            --card-bg-color: #1a1a1a;
+        }
+
+        body, html {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            height: 100%;
+        }
+
+        .container {
+            display: flex;
+            height: 100%;
+        }
+
+        header {
+            background-color: var(--bg-color);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-sizing: border-box;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 0;
+            flex-grow: 1;
+            text-align: center;
+        }
+
+        .menu-toggle {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-color);
+            padding: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            transition: background-color 0.2s ease;
+        }
+
+        .menu-toggle:hover, .menu-toggle:focus {
+            background-color: var(--hover-color);
+            outline: none;
+        }
+
+        nav {
+            width: 250px;
+            height: 100%;
+            background-color: var(--bg-color);
+            border-right: 1px solid var(--border-color);
+            position: fixed;
+            top: 60px;
+            left: 0;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+            z-index: 999;
+        }
+
+        .category-list {
+            list-style-type: none;
+            padding: 1rem 0;
+            margin: 0;
+        }
+
+        .category-button {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            cursor: pointer;
+            font-size: 1rem;
+            text-align: left;
+            width: 100%;
+            padding: 0.75rem 2rem;
+            transition: background-color 0.2s ease;
+        }
+
+        .category-button:hover, .category-button:focus {
+            background-color: var(--hover-color);
+            outline: none;
+        }
+
+        .category-button.active {
+            background-color: var(--hover-color);
+            font-weight: 600;
+        }
+
+        main {
+            flex-grow: 1;
+            padding: 2rem;
+            margin-top: 60px;
+            margin-left: 250px;
+            overflow-y: auto;
+        }
+
+        .api-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .api-card {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            transition: box-shadow 0.2s ease, transform 0.2s ease;
+            background-color: var(--card-bg-color);
+        }
+
+        .api-card:hover {
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .api-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+
+        .api-description {
+            font-size: 0.95rem;
+            color: #b0b0b0;
+            margin-bottom: 1.25rem;
+        }
+
+        .api-method {
+            font-size: 0.85rem;
+            color: var(--accent-color);
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+        }
+
+        .link-button {
+            background-color: var(--accent-color);
+            color: #ffffff;
+            padding: 0.6rem 1.2rem;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: background-color 0.2s ease, transform 0.2s ease;
+            display: inline-block;
+        }
+
+        .link-button:hover, .link-button:focus {
+            background-color: #2980b9;
+            transform: translateY(-1px);
+            outline: none;
+        }
+
+        .stats-card {
+            background-color: var(--card-bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            color: #b0b0b0;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-value {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--accent-color);
+        }
+
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-size: 1.5rem;
+            color: var(--accent-color);
+        }
+
+        @media (max-width: 768px) {
+            nav {
+                transform: translateX(-100%);
+            }
+
+            nav.open {
+                transform: translateX(0);
+            }
+
+            main {
+                margin-left: 0;
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <button id="menu-toggle" class="menu-toggle" aria-label="Toggle menu">☰</button>
+                <h1>Ajiro API</h1>
+                <div style="width: 40px;"></div> <!-- Placeholder for balance -->
+            </div>
+        </header>
+
+        <nav id="sidebar">
+            <ul class="category-list" id="category-list"></ul>
+        </nav>
+
+        <main id="main-content">
+            <div class="loading">Loading...</div>
+        </main>
+    </div>
+
+    <script>
+        const menuToggle = document.getElementById('menu-toggle');
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('main-content');
+        const categoryList = document.getElementById('category-list');
+
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+            menuToggle.setAttribute('aria-expanded', sidebar.classList.contains('open'));
+        });
+
+        function capitalizeFirstLetter(string) {
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        }
+
+        async function fetchWithTimeout(resource, options = {}) {
+            const { timeout = 8000 } = options;
+
+            const controller = new AbortController();
+            const id = setTimeout(() => controller.abort(), timeout);
+
+            try {
+                const response = await fetch(resource, {
+                    ...options,
+                    signal: controller.signal  
+                });
+                clearTimeout(id);
+                return response;
+            } catch (error) {
+                clearTimeout(id);
+                throw error;
+            }
+        }
+
+        async function initializeDashboard() {
+            try {
+                const [apiListResponse, statsResponse] = await Promise.all([
+                    fetchWithTimeout('/api-list'),
+                    fetchWithTimeout('/api-stats')
+                ]);
+
+                if (!apiListResponse.ok || !statsResponse.ok) {
+                    throw new Error('Failed to fetch data');
+                }
+
+                const apis = await apiListResponse.json();
+                const stats = await statsResponse.json();
+                const groupedApis = groupApisByCategory(apis);
+                setupCategoryNavigation(groupedApis, stats);
+                showHomePage(stats, groupedApis);
+            } catch (error) {
+                console.error('Failed to fetch data:', error);
+                showErrorMessage();
+            }
+        }
+
+        function groupApisByCategory(apis) {
+            return apis.reduce((acc, api) => {
+                const category = api.category || 'Uncategorized';
+                (acc[category] = acc[category] || []).push(api);
+                return acc;
+            }, {});
+        }
+
+        function setupCategoryNavigation(groupedApis, stats) {
+            const categories = ['Home', ...Object.keys(groupedApis).sort()];
+            categoryList.innerHTML = categories.map(category => 
+                `<li><button class="category-button" data-category="${category.toLowerCase()}">${capitalizeFirstLetter(category)}</button></li>`
+            ).join('');
+
+            categoryList.addEventListener('click', (e) => {
+                if (e.target.classList.contains('category-button')) {
+                    const category = e.target.dataset.category;
+                    document.querySelectorAll('.category-button').forEach(btn => btn.classList.remove('active'));
+                    e.target.classList.add('active');
+
+                    if (category === 'home') {
+                        showHomePage(stats, groupedApis);
+                    } else {
+                        showCategoryApis(category, groupedApis[category]);
+                    }
+
+                    if (window.innerWidth <= 768) {
+                        sidebar.classList.remove('open');
+                        menuToggle.setAttribute('aria-expanded', 'false');
+                    }
+                }
+            });
+        }
+
+        function updateLiveStats() {
+            const dateElement = document.getElementById('live-date');
+            const timeElement = document.getElementById('live-time');
+
+            if (dateElement && timeElement) {
+                const now = new Date();
+                dateElement.textContent = now.toLocaleDateString();
+                timeElement.textContent = now.toLocaleTimeString();
+            }
+        }
+
+        function showHomePage(stats, groupedApis) {
+            const totalApis = Object.values(groupedApis).flat().length;
+            const totalCategories = Object.keys(groupedApis).length;
+
+            mainContent.innerHTML = `
+                <h2>Welcome to Ajiro API</h2>
+                <p>Discover our powerful and flexible APIs to enhance your applications. Choose a category from the sidebar to explore our available endpoints.</p>
+
+                <div class="stats-card">
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-label">Browser CodeName</div>
+                            <div class="stat-value">${stats.browserCodeName || 'N/A'}</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Browser Name</div>
+                            <div class="stat-value">${stats.browserName || 'N/A'}</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Cookies Enabled</div>
+                            <div class="stat-value">${stats.cookiesEnabled || 'N/A'}</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Browser Language</div>
+                            <div class="stat-value">${stats.browserLanguage || 'N/A'}</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Browser Online</div>
+                            <div class="stat-value">${stats.browserOnline || 'N/A'}</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Platform</div>
+                            <div class="stat-value">${stats.platform || 'N/A'}</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">User-agent</div>
+                            <div class="stat-value">${stats.userAgent || 'N/A'}</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">IP Address</div>
+                            <div class="stat-value">${stats.ipAddress || 'N/A'}</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Date</div>
+                            <div class="stat-value" id="live-date"></div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Time</div>
+                            <div class="stat-value" id="live-time"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            updateLiveStats();
+            setInterval(updateLiveStats, 1000);
+        }
+
+        function showCategoryApis(category, apis) {
+            mainContent.innerHTML = `
+                <h2>${capitalizeFirstLetter(category)} APIs</h2>
+                <div class="api-grid">
+                    ${apis.map(createApiCard).join('')}
+                </div>
+            `;
+        }
+
+        function createApiCard(api) {
+            return `
+                <div class="api-card">
+                    <div class="api-name">${capitalizeFirstLetter(api.name)}</div>
+                    <div class="api-description">${api.description}</div>
+                    <div class="api-method">${api.method || 'GET'}</div>
+                    <a href="${api.usage[0]}" class="link-button">Try it out</a>
+                </div>
+            `;
+        }
+
+        function showErrorMessage() {
+            mainContent.innerHTML = `
+                <h2>Error</h2>
+                <p>We're sorry, but there was an error loading the API information. Please try again later.</p>
+            `;
+        }
+
+        window.addEventListener('load', initializeDashboard);
+    </script>
+</body>
+</html>

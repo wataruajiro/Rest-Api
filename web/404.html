@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>404 Error</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background-color: #f0f0f0;
+      }
+
+      .container {
+        text-align: center;
+      }
+
+      .error-code {
+        font-size: 6em;
+        color: #333;
+        margin-bottom: 20px;
+        animation: bounce 1s infinite alternate;
+      }
+
+      @keyframes bounce {
+        0% {
+          transform: translateY(0);
+        }
+        100% {
+          transform: translateY(-20px);
+        }
+      }
+
+      .error-message {
+        font-size: 1.5em;
+        color: #666;
+        margin-bottom: 30px;
+        width: 9;
+        color: red;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="error-code">404</div>
+      <div class="error-message">Error: Page Not Found</div>
+      <td><a href="/"> Back to homepage</a></td>
+    </div>
+  </body>
+</html>
