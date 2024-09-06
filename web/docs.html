@@ -30,12 +30,13 @@
         header {
             background-color: var(--bg-color);
             border-bottom: 1px solid var(--border-color);
-            padding: 1rem;
+            padding: 0.5rem 1rem;
             position: fixed;
             width: 100%;
             top: 0;
             z-index: 1000;
             box-sizing: border-box;
+            height: 50px;
         }
         .header-content {
             display: flex;
@@ -43,31 +44,45 @@
             align-items: center;
             max-width: 1200px;
             margin: 0 auto;
+            height: 100%;
         }
-        h1 {font-size: 1.5rem; font-weight: 600; margin: 0; flex-grow: 1; text-align: center;}
-        .menu-toggle {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: var(--text-color);
-            padding: 0.5rem;
+        h1 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin: 0;
+            flex-grow: 1;
+            text-align: center;
+        }
+        .menu-toggle, .profile-photo {
+            width: 30px;
+            height: 30px;
+            padding: 0;
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-color);
+            font-size: 1.2rem;
             transition: background-color 0.2s ease;
+            flex-shrink: 0;
         }
-        .menu-toggle:hover, .menu-toggle:focus {background-color: var(--hover-color);}
+        .menu-toggle:hover, .menu-toggle:focus,
+        .profile-photo:hover, .profile-photo:focus {
+            background-color: var(--hover-color);
+        }
+        .profile-photo {
+            border-radius: 50%;
+            object-fit: cover;
+        }
         nav {
             width: 250px;
             height: 100%;
             background-color: var(--bg-color);
             border-right: 1px solid var(--border-color);
             position: fixed;
-            top: 60px;
+            top: 50px;
             left: 0;
             overflow-y: auto;
             transition: transform 0.3s ease;
@@ -90,7 +105,7 @@
         main {
             flex-grow: 1;
             padding: 2rem;
-            margin-top: 60px;
+            margin-top: 50px;
             margin-left: 250px;
             overflow-y: auto;
         }
@@ -107,8 +122,7 @@
             background-color: var(--card-bg-color);
             word-wrap: break-word;
             overflow: hidden;
-            text-overflow: ellipse
-            /* Prevent text overflow */
+            text-overflow: ellipsis;
         }
         .api-card:hover {box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); transform: translateY(-2px);}
         .api-name {font-size: 1.2rem; font-weight: 600; margin-bottom: 0.75rem;}
@@ -145,20 +159,26 @@
             gap: 1rem;
         }
         .stat-item {display: flex; flex-direction: column;}
-        .stat-label {font-size: 1rem; color: #b0b0b0; margin-bottom: 0.25rem;}
-        .stat-value {font-size: 1.25rem; font-weight: 600; color: var(--accent-color);}
+        .stat-label {color: #b0b0b0; margin-bottom: 0.25rem; font-size: 0.9rem;}
+        .stat-value {font-weight: 600; color: var(--accent-color); font-size: 0.9rem; word-break: break-word;}
         .loading-container {
-            display: flex;
+            display: none;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(18, 18, 18, 0.8);
+            z-index: 2000;
         }
         .spinner {
-            border: 4px solid var(--hover-color);
-            border-top: 4px solid var(--accent-color);
+            width: 50px;
+            height: 50px;
+            border: 3px solid var(--accent-color);
+            border-top: 3px solid transparent;
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
             animation: spin 1s linear infinite;
         }
         @keyframes spin {
@@ -168,17 +188,24 @@
         @media (max-width: 768px) {
             nav {transform: translateX(-100%);}
             nav.open {transform: translateX(0);}
-            main {margin-left: 0; padding: 1rem;}
+            main {
+                margin-left: 0;
+                padding: 1rem;
+                margin-top: 50px;
+            }
         }
     </style>
 </head>
 <body>
+    <div class="loading-container" id="loading-spinner">
+        <div class="spinner"></div>
+    </div>
     <div class="container">
         <header>
             <div class="header-content">
                 <button id="menu-toggle" class="menu-toggle" aria-label="Toggle menu">☰</button>
                 <h1>Ajiro API</h1>
-                <div style="width: 40px;"></div>
+                <img src="https://i.imgur.com/xwCoQ5H.jpeg" alt="Profile" class="profile-photo" id="profile-photo">
             </div>
         </header>
 
@@ -186,11 +213,7 @@
             <ul class="category-list" id="category-list"></ul>
         </nav>
 
-        <main id="main-content">
-            <div class="loading-container">
-                <div class="spinner"></div>
-            </div>
-        </main>
+        <main id="main-content"></main>
     </div>
 
     <script>
@@ -198,6 +221,10 @@
         const sidebar = document.getElementById('sidebar');
         const mainContent = document.getElementById('main-content');
         const categoryList = document.getElementById('category-list');
+        const loadingSpinner = document.getElementById('loading-spinner');
+
+        let currentCategory = 'home';
+        let currentScroll = 0;
 
         menuToggle.addEventListener('click', () => {
             sidebar.classList.toggle('open');
@@ -205,6 +232,16 @@
         });
 
         const capitalizeFirstLetter = string => string.charAt(0).toUpperCase() + string.slice(1);
+
+        function showLoading() {
+            loadingSpinner.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function hideLoading() {
+            loadingSpinner.style.display = 'none';
+            document.body.style.overflow = '';
+        }
 
         async function fetchWithTimeout(resource, options = {}) {
             const { timeout = 8000 } = options;
@@ -224,6 +261,7 @@
         }
 
         async function initializeDashboard() {
+            showLoading();
             try {
                 const [apiListResponse, statsResponse] = await Promise.all([
                     fetchWithTimeout('/api-list'),
@@ -247,7 +285,7 @@
                 console.error('Failed to fetch data:', error);
                 showErrorMessage();
             } finally {
-                document.querySelector('.loading-container').style.display = 'none';
+                hideLoading();
             }
         }
 
@@ -263,6 +301,9 @@
                     document.querySelectorAll('.category-button').forEach(btn => btn.classList.remove('active'));
                     e.target.classList.add('active');
 
+                    currentScroll = window.scrollY;
+                    currentCategory = category;
+
                     if (category === 'home') {
                         showHomePage(stats, groupedApis);
                     } else {
@@ -277,69 +318,97 @@
             });
         }
 
-        function updateLiveStats() {
-            const dateElement = document.getElementById('live-date');
-            const timeElement = document.getElementById('live-time');
-
-            if (dateElement && timeElement) {
-                const now = new Date();
-                dateElement.textContent = now.toLocaleDateString();
-                timeElement.textContent = now.toLocaleTimeString();
-            }
-        }
-
         function showHomePage(stats, groupedApis) {
-            const totalApis = Object.values(groupedApis).flat().length;
+            const totalApis = stats.totalApis;
             const totalCategories = Object.keys(groupedApis).length;
 
             mainContent.innerHTML = `
-    <h2>Welcome to Ajiro API</h2>
-    <p>Explore our APIs by clicking on the categories in the sidebar to find the one you need.</p>
+                <h2>Welcome to Ajiro API</h2>
+                <p>Explore our APIs by clicking on the categories in the sidebar to find the one you need.</p>
 
-    <div class="stats-card">
-        <div class="stats-grid">
-            <div class="stat-item">
-                <div class="stat-label">Browser CodeName</div>
-                <div class="stat-value">${stats.browserCodeName || 'N/A'}</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-label">Browser Name</div>
-                <div class="stat-value">${stats.browserName || 'N/A'}</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-label">Browser Language</div>
-                <div class="stat-value">${stats.browserLanguage || 'N/A'}</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-label">Browser Online</div>
-                <div class="stat-value">${stats.browserOnline || 'N/A'}</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-label">Platform</div>
-                <div class="stat-value">${stats.platform || 'N/A'}</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-label">IP Address</div>
-                <div class="stat-value">${stats.ipAddress || 'N/A'}</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-label">Date</div>
-                <div class="stat-value" id="live-date"></div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-label">Time</div>
-                <div class="stat-value" id="live-time"></div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-label">Total APIs</div>
-                <div class="stat-value">${stats.totalApis || 'N/A'}</div>
-            </div>
-        </div>
-    </div>
-`;
-            
-            updateLiveStats();
-            setInterval(updateLiveStats, 1000);
+                <div class="stats-card">
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-label">Browser CodeName</div>
+                            <div class="stat-value">${stats.browserCodeName || 'N/A'}</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Browser Name</div>
+                            <div class="stat-value">${stats.browserName || 'N/A'}</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Browser Language</div>
+                            <div class="stat-value">${stats.browserLanguage || 'N/A'}</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Cookie</div>
+                            <div class="stat-value">${stats.cookie || 'N/A'}</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Browser Online</div>
+                            <div class="stat-value">${stats.browserOnline || 'N/A'}</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Platform</div>
+                            <div class="stat-value">${stats.platform || 'N/A'}</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">User Agent</div>
+                            <div class="stat-value">${stats.userAgent || 'N/A'}</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">IP Address</div>
+                            <div class="stat-value">${stats.ipAddress || 'N/A'}</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Date</div>
+                            <div class="stat-value">${stats.date || 'N/A'}</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Time</div>
+                            <div class="stat-value" id="live-time">${stats.time || 'N/A'}</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Total APIs</div>
+                            <div class="stat-value">${totalApis || 'N/A'}</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Total Categories</div>
+                            <div class="stat-value">${totalCategories || 'N/A'}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            updateTime(stats.time);
+        }
+
+        function updateTime(initialTime) {
+            const timeElement = document.getElementById('live-time');
+            if (!timeElement) return;
+
+            let [hours, minutes, seconds] = initialTime.split(':').map(Number);
+
+            function updateClock() {
+                seconds++;
+                if (seconds >= 60) {
+                    seconds = 0;
+                    minutes++;
+                    if (minutes >= 60) {
+                        minutes = 0;
+                        hours++;
+                        if (hours >= 24) {
+                            hours = 0;
+                        }
+                    }
+                }
+
+                const timeString = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                timeElement.textContent = timeString;
+            }
+
+            updateClock();
+            setInterval(updateClock, 1000);
         }
 
         function showCategoryApis(category, apis) {
@@ -351,11 +420,28 @@
                             <div class="api-name">${capitalizeFirstLetter(api.name)}</div>
                             <div class="api-description">${api.description}</div>
                             <div class="api-method">${api.method || 'GET'}</div>
-                            <a href="${api.usage[0]}" class="link-button">Try it out</a>
+                            <a href="${api.usage[0]}" class="link-button" data-api-link>Try it out</a>
                         </div>
                     `).join('')}
                 </div>
             `;
+
+            // Add event listeners to API links
+            document.querySelectorAll('[data-api-link]').forEach(link => {
+                link.addEventListener('click', handleApiLinkClick);
+            });
+        }
+
+        function handleApiLinkClick(event) {
+            event.preventDefault();
+            const apiUrl = event.target.href;
+
+            // Store the current state
+            localStorage.setItem('lastCategory', currentCategory);
+            localStorage.setItem('lastScroll', window.scrollY);
+
+            // Navigate to the API
+            window.location.href = apiUrl;
         }
 
         function showErrorMessage() {
@@ -365,7 +451,28 @@
             `;
         }
 
-        window.addEventListener('load', initializeDashboard);
+        window.addEventListener('load', () => {
+            initializeDashboard();
+
+            // Check if returning from an API view
+            const lastCategory = localStorage.getItem('lastCategory');
+            const lastScroll = localStorage.getItem('lastScroll');
+
+            if (lastCategory) {
+                currentCategory = lastCategory;
+                document.querySelector(`[data-category="${lastCategory}"]`).click();
+
+                if (lastScroll) {
+                    setTimeout(() => {
+                        window.scrollTo(0, parseInt(lastScroll, 10));
+                    }, 100);
+                }
+
+                // Clear the stored data
+                localStorage.removeItem('lastCategory');
+                localStorage.removeItem('lastScroll');
+            }
+        });
     </script>
 </body>
 </html>
