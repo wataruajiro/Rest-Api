@@ -208,41 +208,41 @@
                 <img src="https://i.imgur.com/xwCoQ5H.jpeg" alt="Profile" class="profile-photo" id="profile-photo">
             </div>
         </header>
-
+        
         <nav id="sidebar">
             <ul class="category-list" id="category-list"></ul>
         </nav>
-
+        
         <main id="main-content"></main>
     </div>
-
+    
     <script>
         const menuToggle = document.getElementById('menu-toggle');
         const sidebar = document.getElementById('sidebar');
         const mainContent = document.getElementById('main-content');
         const categoryList = document.getElementById('category-list');
         const loadingSpinner = document.getElementById('loading-spinner');
-
+        
         let currentCategory = 'home';
         let currentScroll = 0;
-
+        
         menuToggle.addEventListener('click', () => {
             sidebar.classList.toggle('open');
             menuToggle.setAttribute('aria-expanded', sidebar.classList.contains('open'));
         });
-
+        
         const capitalizeFirstLetter = string => string.charAt(0).toUpperCase() + string.slice(1);
-
+        
         function showLoading() {
             loadingSpinner.style.display = 'flex';
             document.body.style.overflow = 'hidden';
         }
-
+        
         function hideLoading() {
             loadingSpinner.style.display = 'none';
             document.body.style.overflow = '';
         }
-
+        
         async function fetchWithTimeout(resource, options = {}) {
             const { timeout = 8000 } = options;
             const controller = new AbortController();
@@ -250,8 +250,8 @@
             try {
                 const response = await fetch(resource, {
                     ...options,
-                    signal: controller.signal  
-                });
+                    signal: controller.signal
+                  });
                 clearTimeout(id);
                 return response;
             } catch (error) {
@@ -259,7 +259,7 @@
                 throw error;
             }
         }
-
+        
         async function initializeDashboard() {
             showLoading();
             try {
@@ -267,11 +267,11 @@
                     fetchWithTimeout('/api-list'),
                     fetchWithTimeout('/api-stats')
                 ]);
-
+                
                 if (!apiListResponse.ok || !statsResponse.ok) {
                     throw new Error('Failed to fetch data');
                 }
-
+                
                 const apis = await apiListResponse.json();
                 const stats = await statsResponse.json();
                 const groupedApis = apis.reduce((acc, api) => {
@@ -288,28 +288,28 @@
                 hideLoading();
             }
         }
-
+        
         function setupCategoryNavigation(groupedApis, stats) {
             const categories = ['Home', ...Object.keys(groupedApis).sort()];
             categoryList.innerHTML = categories.map(category => 
                 `<li><button class="category-button" data-category="${category.toLowerCase()}">${capitalizeFirstLetter(category)}</button></li>`
             ).join('');
-
+            
             categoryList.addEventListener('click', (e) => {
                 if (e.target.classList.contains('category-button')) {
                     const category = e.target.dataset.category;
                     document.querySelectorAll('.category-button').forEach(btn => btn.classList.remove('active'));
                     e.target.classList.add('active');
-
+                    
                     currentScroll = window.scrollY;
                     currentCategory = category;
-
+                    
                     if (category === 'home') {
                         showHomePage(stats, groupedApis);
                     } else {
                         showCategoryApis(category, groupedApis[category]);
                     }
-
+                    
                     if (window.innerWidth <= 768) {
                         sidebar.classList.remove('open');
                         menuToggle.setAttribute('aria-expanded', 'false');
@@ -317,15 +317,15 @@
                 }
             });
         }
-
+        
         function showHomePage(stats, groupedApis) {
             const totalApis = stats.totalApis;
             const totalCategories = Object.keys(groupedApis).length;
-
+            
             mainContent.innerHTML = `
                 <h2>Welcome to Ajiro API</h2>
                 <p>Explore our APIs by clicking on the categories in the sidebar to find the one you need.</p>
-
+                
                 <div class="stats-card">
                     <div class="stats-grid">
                         <div class="stat-item">
@@ -341,7 +341,7 @@
                             <div class="stat-value">${stats.browserLanguage || 'N/A'}</div>
                         </div>
                         <div class="stat-item">
-                            <div class="stat-label">Cookie</div>
+                            <div class="stat-label">Cookies Enabled</div>
                             <div class="stat-value">${stats.cookie || 'N/A'}</div>
                         </div>
                         <div class="stat-item">
@@ -379,16 +379,16 @@
                     </div>
                 </div>
             `;
-
+            
             updateTime(stats.time);
         }
-
+        
         function updateTime(initialTime) {
             const timeElement = document.getElementById('live-time');
             if (!timeElement) return;
-
+            
             let [hours, minutes, seconds] = initialTime.split(':').map(Number);
-
+            
             function updateClock() {
                 seconds++;
                 if (seconds >= 60) {
@@ -402,15 +402,15 @@
                         }
                     }
                 }
-
+                
                 const timeString = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
                 timeElement.textContent = timeString;
             }
-
+            
             updateClock();
             setInterval(updateClock, 1000);
         }
-
+        
         function showCategoryApis(category, apis) {
             mainContent.innerHTML = `
                 <h2>${capitalizeFirstLetter(category)} APIs</h2>
@@ -425,49 +425,49 @@
                     `).join('')}
                 </div>
             `;
-
+            
             // Add event listeners to API links
             document.querySelectorAll('[data-api-link]').forEach(link => {
                 link.addEventListener('click', handleApiLinkClick);
             });
         }
-
+        
         function handleApiLinkClick(event) {
             event.preventDefault();
             const apiUrl = event.target.href;
-
+            
             // Store the current state
             localStorage.setItem('lastCategory', currentCategory);
             localStorage.setItem('lastScroll', window.scrollY);
-
+            
             // Navigate to the API
             window.location.href = apiUrl;
         }
-
+        
         function showErrorMessage() {
             mainContent.innerHTML = `
                 <h2>Error</h2>
                 <p>We're sorry, but there was an error loading the API information. Please try again later.</p>
             `;
         }
-
+        
         window.addEventListener('load', () => {
             initializeDashboard();
-
+            
             // Check if returning from an API view
             const lastCategory = localStorage.getItem('lastCategory');
             const lastScroll = localStorage.getItem('lastScroll');
-
+            
             if (lastCategory) {
                 currentCategory = lastCategory;
                 document.querySelector(`[data-category="${lastCategory}"]`).click();
-
+                
                 if (lastScroll) {
                     setTimeout(() => {
                         window.scrollTo(0, parseInt(lastScroll, 10));
                     }, 100);
                 }
-
+                
                 // Clear the stored data
                 localStorage.removeItem('lastCategory');
                 localStorage.removeItem('lastScroll');
