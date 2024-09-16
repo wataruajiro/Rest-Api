@@ -2,7 +2,7 @@ const ai = require('unlimited-ai');
 
 exports.config = {
     name: 'jea',
-    author: 'Lance Cochangco',
+    author: 'Wataru Ajiro',
     description: 'Jea the personal AI girlfriend',
     category: 'ai',
     usage: ['/jea?ask=hi']
