@@ -3,7 +3,7 @@ const fs = require("fs");
 
 exports.config = {
     name: 'cdp',
-    author: 'Lance Cochangco',
+    author: '',
     description: 'Fetches a random couple from the CDP data',
     category: 'anime',
     usage: ['/cdp']
