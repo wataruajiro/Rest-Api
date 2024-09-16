@@ -3,7 +3,7 @@ const g4f = new G4F();
 
 exports.config = {
     name: 'chatgpt',
-    author: 'Lance Cochangco',
+    author: '',
     description: 'Generates a response from ChatGPT',
     category: 'ai',
     usage: ['/chatgpt?question=hi']
